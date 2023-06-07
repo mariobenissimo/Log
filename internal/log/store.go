@@ -17,7 +17,7 @@ const (
 
 type store struct {
 	*os.File
-	mu   sync.Mutex    // mutua esclusione con lock e unlock
+	mu   sync.Mutex    // mutua esclusione con lock e unlock sem
 	buf  *bufio.Writer // buffer di scrittura
 	size uint64
 }

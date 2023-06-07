@@ -14,7 +14,7 @@ var (
 
 type index struct {
 	file *os.File
-	mmap gommap.MMap //mappare i file dal disco alla memoria
+	mmap gommap.MMap //mappare i file dal disco alla memoria primaria
 	size uint64
 }
 

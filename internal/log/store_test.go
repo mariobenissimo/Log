@@ -92,7 +92,7 @@ func openFile(name string) (file *os.File, size int64, err error) {
 	if err != nil {
 		return nil, 0, err
 	}
-	fi, err := f.Stat() // get inf
+	fi, err := f.Stat() // get information from file
 	if err != nil {
 		return nil, 0, err
 	}
