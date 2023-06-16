@@ -23,12 +23,12 @@ type store struct {
 }
 
 func newStrore(f *os.File) (*store, error) {
-	fi, err := os.Stat(f.Name())
+	fi, err := os.Stat(f.Name()) // get information from file
 	if err != nil {
 		return nil, err
 	}
-	size := uint64(fi.Size())
-	return &store{
+	size := uint64(fi.Size()) // size of the file
+	return &store{            //create a store based on the file
 		File: f,
 		size: size,
 		buf:  bufio.NewWriter(f),
@@ -45,9 +45,11 @@ func (s *store) Append(p []byte) (n uint64, pos uint64, err error) {
 	if err != nil {
 		return
 	}
-	w += lenWidth
+	w += lenWidth       // ogni scrittura permette di aumnetare di 8 byte
 	s.size += uint64(w) // Aggiorna la dimensione totale del buffer
 	return uint64(w), pos, nil
+	// num byte written
+	// pos start record
 }
 func (s *store) Read(pos uint64) ([]byte, error) {
 	s.mu.Lock()
@@ -55,8 +57,8 @@ func (s *store) Read(pos uint64) ([]byte, error) {
 	if err := s.buf.Flush(); err != nil { // Svuota il buffer s.buf e scrive tutti i dati nel file s.File
 		return nil, err
 	}
-	size := make([]byte, lenWidth) // Crea un slice di byte per contenere la lunghezza dei dati
-	if _, err := s.File.ReadAt(size, int64(pos)); err != nil {
+	size := make([]byte, lenWidth)                             // Crea una slice di dim 8
+	if _, err := s.File.ReadAt(size, int64(pos)); err != nil { // legge lenWidth byte dal file a partire da pos e li memorizza su size
 		return nil, err
 	}
 	b := make([]byte, enc.Uint64(size))                              // Crea un slice di byte con la dimensione specificata dalla lunghezza dei dati

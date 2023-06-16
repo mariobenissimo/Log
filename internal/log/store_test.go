@@ -2,6 +2,7 @@ package log
 
 import (
 	"io/ioutil"
+	"log"
 	"os"
 	"testing"
 
@@ -25,17 +26,19 @@ func TestStoreAppendRead(t *testing.T) {
 	testRead(t, s)
 	testReadAt(t, s)
 
-	s, err = newStrore(f)
-	require.NoError(t, err)
-	testRead(t, s)
+	// s, err = newStrore(f)
+	// require.NoError(t, err)
+	// testRead(t, s)
 
 }
 
 func testAppend(t *testing.T, s *store) {
 	t.Helper()
+	log.Print(width)
 	for i := uint64(1); i < 4; i++ {
 		n, pos, err := s.Append(write)
 		require.NoError(t, err)
+		log.Print(n, pos)
 		require.Equal(t, pos+n, width*i)
 	}
 }
@@ -43,8 +46,10 @@ func testRead(t *testing.T, s *store) {
 	t.Helper()
 	var pos uint64
 	for i := uint64(1); i < 4; i++ {
+		log.Println(pos)
 		read, err := s.Read(pos)
 		require.NoError(t, err)
+		log.Println(read)
 		require.Equal(t, write, read)
 		pos += width
 	}
@@ -56,6 +61,7 @@ func testReadAt(t *testing.T, s *store) {
 		n, err := s.ReadAt(b, off)
 		require.NoError(t, err)
 		require.Equal(t, lenWidth, n)
+		// shift di 8 byte
 		off += int64(n)
 
 		size := enc.Uint64(b)

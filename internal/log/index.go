@@ -8,19 +8,20 @@ import (
 	"github.com/tysonmote/gommap"
 )
 
-var (
+// ogni voce dell'index mantiene l'offset del record e la sua posizione nel file
+var ( // numero di byte per ogni voce dell'index
 	offWidth uint64 = 4
 	posWidth uint64 = 8
-	entWidth        = offWidth + posWidth
+	entWidth        = offWidth + posWidth // per saltare all posizione di una voce data dal suo offest
 )
 
 type index struct {
 	file *os.File
 	mmap gommap.MMap
-	size uint64
+	size uint64 // dimi file e dove scrivere la succesiva voce
 }
 
-func newIndex(f *os.File, c Config) (*index, error) {
+func newIndex(f *os.File, c Config) (*index, error) { // crea il file e lo mappa in memoria
 	idx := &index{
 		file: f,
 	}
@@ -57,7 +58,8 @@ func (i *index) Close() error {
 	return i.file.Close()
 }
 
-func (i *index) Read(in int64) (out uint32, pos uint64, err error) {
+func (i *index) Read(in int64) (out uint32, pos uint64, err error) { // in = offset e restuisce la posizione del record nello store
+	// 4 byte offset e 8 byte position
 	if i.size == 0 {
 		return 0, 0, io.EOF
 	}
@@ -67,11 +69,12 @@ func (i *index) Read(in int64) (out uint32, pos uint64, err error) {
 		out = uint32(in)
 	}
 	pos = uint64(out) * entWidth
-	if i.size < pos+entWidth {
+	// mi sposto nel record che cero
+	if i.size < pos+entWidth { // se l'offset eccede l'index
 		return 0, 0, io.EOF
 	}
-	out = enc.Uint32(i.mmap[pos : pos+offWidth])
-	pos = enc.Uint64(i.mmap[pos+offWidth : pos+entWidth])
+	out = enc.Uint32(i.mmap[pos : pos+offWidth])          // leggo da pos a pos+OffWidt ovver leggo l'offset
+	pos = enc.Uint64(i.mmap[pos+offWidth : pos+entWidth]) // leggo da pos+OffWidt a pos+EntWidth ovver leggo la pos nel file
 	return out, pos, nil
 }
 
